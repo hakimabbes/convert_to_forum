@@ -39,36 +39,40 @@ class Post_forum:
             line = re.sub('contest/\d*/','contest/'+str(numcontest)+'/',line)
             
             line = re.sub('\d+ +juin',str(day)+' juin',line, flags=re.IGNORECASE)
-            line = re.sub('June +\d{1-2}','June '+str(day),line, flags=re.IGNORECASE)
-            line = re.sub('\d{1-2} +de Junio',str(day)+' de Junio',line, flags=re.IGNORECASE)
+            line = re.sub('June +\d{1,2}','June '+str(day),line, flags=re.IGNORECASE)
+            line = re.sub('\d{1,2} +de Junio',str(day)+' de Junio',line, flags=re.IGNORECASE)
 
             line = re.sub('\d+ +juillet',str(dayjapan)+' juillet',line, flags=re.IGNORECASE)
-            line = re.sub('July +\d{1-2}','July '+str(dayjapan),line, flags=re.IGNORECASE)
-            line = re.sub('\d{1-2} +de Julio',str(dayjapan)+' de Julio',line, flags=re.IGNORECASE)
+            line = re.sub('July +\d{1,2}','July '+str(dayjapan),line, flags=re.IGNORECASE)
+            line = re.sub('\d{1,2} +de Julio',str(dayjapan)+' de Julio',line, flags=re.IGNORECASE)
 
-            line = re.sub('samedi +\d{1-2}','samedi '+str(dayjapan-1),line, flags=re.IGNORECASE)
-            line = re.sub('dimanche +\d{1-2}','dimanche '+str(dayjapan),line, flags=re.IGNORECASE)
+            line = re.sub('samedi +\d{1,2}','samedi '+str(dayjapan-1),line, flags=re.IGNORECASE)
+            line = re.sub('dimanche +\d{1,2}','dimanche '+str(dayjapan),line, flags=re.IGNORECASE)
 
-            line = re.sub('Saturday +\d{1-2}','Saturday '+str(dayjapan-1),line, flags=re.IGNORECASE)
-            line = re.sub('Sunday +\d{1-2}','Sunday '+str(dayjapan),line, flags=re.IGNORECASE)
+            line = re.sub('Saturday +\d{1,2}','Saturday '+str(dayjapan-1),line, flags=re.IGNORECASE)
+            line = re.sub('Sunday +\d{1,2}','Sunday '+str(dayjapan),line, flags=re.IGNORECASE)
 
-            line = re.sub('sabado +\d{1-2}','sabado '+str(dayjapan-1),line, flags=re.IGNORECASE)
-            line = re.sub('domingo +\d{1-2}','domingo '+str(dayjapan),line, flags=re.IGNORECASE)
+            line = re.sub('sabado +\d{1,2}','sabado '+str(dayjapan-1),line, flags=re.IGNORECASE)
+            line = re.sub('domingo +\d{1,2}','domingo '+str(dayjapan),line, flags=re.IGNORECASE)
             self.translation['AMVFrance'][i]=line
             i += 1
             
     def convert_balise(self):
         """Convert all texts for the forums chosen."""
-        self.translate = "".join(self.translation['AMVFrance'])
         self.forum_dict = {}
+        self.fixed_amvfrance = self.translation['AMVFrance']
         for forum in self.forums:
+            self.translate = "".join(self.fixed_amvfrance)
             try:
                 self.forum_dict[forum] = dict(zip(self.dictionary['AMVFrance'],self.dictionary[forum]))
             except: 
                 print("The forum "+forum+" is not found in the excel dictionary, check the spelling.")
             for balise in self.forum_dict[forum]:
-                self.translate = self.translate.replace(balise,self.forum_dict[forum][balise])
-                self.translation[forum] = self.translate.split("\n")
+                try:
+                    self.translate = self.translate.replace(balise,self.forum_dict[forum][balise])
+                except:
+                    self.translate = self.translate.replace(balise,"")
+            self.translation[forum] = self.translate.split("\n")
                 
     def reorganize(self,language='EN'):
         """Need to reorganize for non french speaking forums"""
@@ -91,8 +95,8 @@ class Post_forum:
                     self.english_part[1] = self.english_part[1][self.english_part[1].find('"]')+2:]
                 except:
                     print(self.english_part[1])
-                self.versionfr = '[spoil="Version française"]'.replace("[spoil=",self.forum_dict[forum]["[spoil="])
-                self.endspoil = '[/spoil]'.replace("[/spoil]",self.forum_dict[forum]["[/spoil]"])
+                self.versionfr = '[spoil="Version française"]'.replace("[spoil=",self.forum_dict[forum]["[spoil="] if type(self.forum_dict[forum]["[spoil="])==str else "")
+                self.endspoil = '[/spoil]'.replace("[/spoil]",self.forum_dict[forum]["[/spoil]"] if type(self.forum_dict[forum]["[/spoil]"])==str else "")
                 self.french_part = [self.versionfr]+self.french_part+[self.endspoil]
                 self.english_part = self.english_part[0:-2]
                 self.spain_part = self.translation[forum][self.english_end-1:]
