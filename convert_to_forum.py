@@ -54,6 +54,11 @@ class Post_forum:
 
             line = re.sub('sabado +\d{1,2}','sabado '+str(dayjapan-1),line, flags=re.IGNORECASE)
             line = re.sub('domingo +\d{1,2}','domingo '+str(dayjapan),line, flags=re.IGNORECASE)
+            
+            line = re.sub('1th','1st', flags=re.IGNORECASE)
+            line = re.sub('2th','2nd', flags=re.IGNORECASE)
+            line = re.sub('3th','3rd', flags=re.IGNORECASE)
+            
             self.translation['AMVFrance'][i]=line
             i += 1
             
